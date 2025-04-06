@@ -126,28 +126,20 @@ export default function Dashboard() {
 
       // Prepare category data for charts with colors
       const expenseCategories = Object.entries(categoryTotals.expense || {}).map(([name, value], index) => ({
-        name: `${name} (Expense)`,
-        value,
+        name: `${name}`,
+        value: Number(value),
         type: 'expense' as const,
         color: COLORS.expense[index % COLORS.expense.length],
       }));
 
       const incomeCategories = Object.entries(categoryTotals.income || {}).map(([name, value], index) => ({
-        name: `${name} (Income)`,
-        value,
+        name: `${name}`,
+        value: Number(value),
         type: 'income' as const,
         color: COLORS.income[index % COLORS.income.length],
       }));
 
-      // Add accounts as income categories
-      const accountCategories = accountsData?.map((account, index) => ({
-        name: `${account.name} (Account)`,
-        value: Number(account.balance),
-        type: 'account' as const,
-        color: COLORS.account[index % COLORS.account.length],
-      })) || [];
-
-      setCategoryData([...expenseCategories, ...incomeCategories, ...accountCategories]);
+      setCategoryData([...expenseCategories, ...incomeCategories]);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -292,8 +284,11 @@ export default function Dashboard() {
                     borderRadius: '0.5rem',
                     color: 'var(--text-primary)',
                   }}
+                  labelStyle={{ color: 'var(--text-primary)' }}
                 />
-                <Legend />
+                <Legend 
+                  wrapperStyle={{ color: 'var(--text-primary)' }}
+                />
                 <Bar 
                   dataKey="value" 
                   name="Amount"

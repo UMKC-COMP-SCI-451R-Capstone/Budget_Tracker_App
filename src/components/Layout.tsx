@@ -18,7 +18,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Accounts', href: '/accounts', icon: Wallet },
-  { name: 'Expenses', href: '/expenses', icon: ArrowUpCircle },
+  { name: 'Transactions', href: '/expenses', icon: ArrowUpCircle },
   { name: 'Categories', href: '/categories', icon: Tags },
   { name: 'Reports', href: '/reports', icon: PieChart },
   { name: 'Profile', href: '/profile', icon: UserCircle },

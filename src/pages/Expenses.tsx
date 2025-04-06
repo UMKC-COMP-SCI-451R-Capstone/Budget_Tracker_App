@@ -229,9 +229,9 @@ export default function Expenses() {
     <div className="p-6">
       <div className="sm:flex sm:items-center sm:justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold text-text-primary dark:text-text-primary-dark">Expenses</h1>
+          <h1 className="text-2xl font-semibold text-text-primary dark:text-text-primary-dark">Transactions</h1>
           <p className="mt-2 text-sm text-text-secondary dark:text-text-secondary-dark">
-            A list of all your expenses
+            A list of all your transactions
           </p>
         </div>
         <div className="mt-4 sm:mt-0 flex space-x-3">
@@ -257,7 +257,7 @@ export default function Expenses() {
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary dark:bg-secondary-dark hover:bg-secondary/90 dark:hover:bg-secondary-dark/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
             <Plus className="h-5 w-5 mr-2" />
-            Add Expense
+            Add Transaction
           </button>
           <button
             onClick={() => {
@@ -274,7 +274,7 @@ export default function Expenses() {
 
       {showAddExpense && (
         <div className="mb-8 bg-card dark:bg-card-dark shadow rounded-lg p-6">
-          <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-6">Add New Expense</h2>
+          <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-6">Add New Transaction</h2>
           <ExpenseForm 
             categories={categories}
             onSuccess={handleExpenseAdded}

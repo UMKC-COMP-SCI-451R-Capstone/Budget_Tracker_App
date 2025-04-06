@@ -87,7 +87,7 @@ export default function EditExpense() {
   return (
     <div className="p-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Edit Expense</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Edit Transaction</h1>
         <div className="bg-white shadow rounded-lg p-6">
           <ExpenseForm 
             expense={expense} 

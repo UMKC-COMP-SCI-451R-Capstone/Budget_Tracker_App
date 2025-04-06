@@ -487,7 +487,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
               Saving...
             </>
           ) : (
-            expense ? 'Update Expense' : 'Add Expense'
+            expense ? 'Update Transaction' : 'Add Transaction'
           )}
         </button>
       </div>

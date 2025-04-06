@@ -60,7 +60,7 @@ export default function AddExpense() {
   return (
     <div className="p-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-8">Add Expense</h1>
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-8">Add Transaction</h1>
         <div className="bg-card dark:bg-card-dark shadow rounded-lg p-6">
           <div className="mb-6">
             <button
