@@ -278,6 +278,7 @@ export default function Expenses() {
           <ExpenseForm 
             categories={categories}
             onSuccess={handleTransactionAdded}
+            onCancel={() => setShowAddTransaction(false)}
           />
         </div>
       )}
@@ -293,6 +294,7 @@ export default function Expenses() {
                 categories={categories} 
                 initialData={scannedData}
                 onSuccess={handleTransactionAdded}
+                onCancel={() => setShowAddReceipt(false)}
               />
             </div>
           )}

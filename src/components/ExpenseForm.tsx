@@ -28,9 +28,10 @@ type ExpenseFormProps = {
     description?: string;
   };
   onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
-export default function ExpenseForm({ transaction, categories, initialData, onSuccess }: ExpenseFormProps) {
+export default function ExpenseForm({ transaction, categories, initialData, onSuccess, onCancel }: ExpenseFormProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -356,7 +357,7 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-md text-sm">
           {error}
@@ -475,19 +476,26 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
         </div>
       </div>
 
-      <div>
+      <div className="flex justify-end space-x-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary"
+        >
+          Cancel
+        </button>
         <button
           type="submit"
           disabled={loading}
-          className="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 transition-colors"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary hover:bg-secondary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Saving...
+              {transaction ? 'Updating...' : 'Saving...'}
             </>
           ) : (
-            transaction ? 'Update Transaction' : 'Add Transaction'
+            transaction ? 'Update' : 'Save'
           )}
         </button>
       </div>

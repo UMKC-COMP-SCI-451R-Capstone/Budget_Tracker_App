@@ -93,6 +93,7 @@ export default function EditExpense() {
             transaction={transaction} 
             categories={categories} 
             onSuccess={handleTransactionUpdated}
+            onCancel={() => navigate('/expenses')}
           />
         </div>
       </div>
