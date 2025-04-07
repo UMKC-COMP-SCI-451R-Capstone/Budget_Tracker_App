@@ -7,7 +7,7 @@ import type { Expense, Category, Account } from '../lib/supabase';
 export default function EditExpense() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [expense, setExpense] = useState<Expense | null>(null);
+  const [transaction, setTransaction] = useState<Expense | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,8 +17,8 @@ export default function EditExpense() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        // Fetch expense
-        const { data: expenseData, error: expenseError } = await supabase
+        // Fetch transaction
+        const { data: transactionData, error: transactionError } = await supabase
           .from('expenses')
           .select(`
             *,
@@ -31,8 +31,8 @@ export default function EditExpense() {
           .eq('id', id)
           .single();
 
-        if (expenseError) throw expenseError;
-        setExpense(expenseData);
+        if (transactionError) throw transactionError;
+        setTransaction(transactionData);
 
         // Fetch categories
         const { data: categoriesData, error: categoriesError } = await supabase
@@ -52,9 +52,9 @@ export default function EditExpense() {
     fetchData();
   }, [id]);
 
-  const handleExpenseUpdated = () => {
-    // Dispatch the expenseUpdated event to refresh the dashboard data
-    window.dispatchEvent(new CustomEvent('expenseUpdated'));
+  const handleTransactionUpdated = () => {
+    // Dispatch the transactionUpdated event to refresh the dashboard data
+    window.dispatchEvent(new CustomEvent('transactionUpdated'));
     // Navigate back to the expenses list
     navigate('/expenses');
   };
@@ -74,11 +74,11 @@ export default function EditExpense() {
     );
   }
 
-  if (!expense) {
+  if (!transaction) {
     return (
       <div className="p-6">
         <div className="text-center py-12">
-          <p className="text-sm text-gray-500">Expense not found</p>
+          <p className="text-sm text-gray-500">Transaction not found</p>
         </div>
       </div>
     );
@@ -90,9 +90,9 @@ export default function EditExpense() {
         <h1 className="text-2xl font-semibold text-gray-900 mb-8">Edit Transaction</h1>
         <div className="bg-white shadow rounded-lg p-6">
           <ExpenseForm 
-            expense={expense} 
+            transaction={transaction} 
             categories={categories} 
-            onSuccess={handleExpenseUpdated}
+            onSuccess={handleTransactionUpdated}
           />
         </div>
       </div>

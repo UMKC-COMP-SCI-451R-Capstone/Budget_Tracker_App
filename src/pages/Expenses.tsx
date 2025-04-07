@@ -14,10 +14,10 @@ import type { Expense, Category, Account } from '../lib/supabase';
 
 export default function Expenses() {
   const [loading, setLoading] = useState(true);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [selectedExpenses, setSelectedExpenses] = useState<string[]>([]);
+  const [transactions, setTransactions] = useState<Expense[]>([]);
+  const [selectedTransactions, setSelectedTransactions] = useState<string[]>([]);
   const [showAddReceipt, setShowAddReceipt] = useState(false);
-  const [showAddExpense, setShowAddExpense] = useState(false);
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [scannedData, setScannedData] = useState<{
     amount?: string;
@@ -35,8 +35,8 @@ export default function Expenses() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Fetch expenses
-      const { data: expensesData, error: expensesError } = await supabase
+      // Fetch transactions
+      const { data: transactionsData, error: transactionsError } = await supabase
         .from('expenses')
         .select(`
           *,
@@ -48,8 +48,8 @@ export default function Expenses() {
         .eq('user_id', user.id)
         .order('date', { ascending: false });
 
-      if (expensesError) throw expensesError;
-      setExpenses(expensesData || []);
+      if (transactionsError) throw transactionsError;
+      setTransactions(transactionsData || []);
 
       // Fetch categories
       const { data: categoriesData, error: categoriesError } = await supabase
@@ -68,8 +68,8 @@ export default function Expenses() {
 
   const handleDelete = async (id: string) => {
     try {
-      // First get the expense to handle account balance adjustment
-      const { data: expense, error: fetchError } = await supabase
+      // First get the transaction to handle account balance adjustment
+      const { data: transaction, error: fetchError } = await supabase
         .from('expenses')
         .select(`
           *,
@@ -84,32 +84,32 @@ export default function Expenses() {
         
       if (fetchError) throw fetchError;
       
-      // If the expense has an account_id, adjust the account balance
-      if (expense && expense.account_id) {
+      // If the transaction has an account_id, adjust the account balance
+      if (transaction && transaction.account_id) {
         // Get the account
         const { data: account, error: accountError } = await supabase
           .from('accounts')
           .select('*')
-          .eq('id', expense.account_id)
+          .eq('id', transaction.account_id)
           .single();
           
         if (accountError) throw accountError;
         
         // Adjust the account balance (add back expense or remove income)
-        const adjustment = expense.categories?.type === 'income'
-          ? -expense.amount // Remove income
-          : expense.amount;  // Add back expense
+        const adjustment = transaction.categories?.type === 'income'
+          ? -transaction.amount // Remove income
+          : transaction.amount;  // Add back expense
         
         // Update the account balance
         const { error: updateError } = await supabase
           .from('accounts')
           .update({ balance: account.balance + adjustment })
-          .eq('id', expense.account_id);
+          .eq('id', transaction.account_id);
           
         if (updateError) throw updateError;
       }
       
-      // Now delete the expense
+      // Now delete the transaction
       const { error } = await supabase
         .from('expenses')
         .delete()
@@ -118,94 +118,94 @@ export default function Expenses() {
       if (error) throw error;
       
       // Update the UI
-      setExpenses(expenses.filter(expense => expense.id !== id));
-      setSelectedExpenses(selectedExpenses.filter(expenseId => expenseId !== id));
+      setTransactions(transactions.filter(t => t.id !== id));
+      setSelectedTransactions(selectedTransactions.filter(tId => tId !== id));
     } catch (error) {
-      console.error('Error deleting expense:', error);
+      console.error('Error deleting transaction:', error);
     }
   };
 
-  const handleSelectExpense = (id: string) => {
-    setSelectedExpenses(prev => 
+  const handleSelectTransaction = (id: string) => {
+    setSelectedTransactions(prev => 
       prev.includes(id) 
-        ? prev.filter(expenseId => expenseId !== id)
+        ? prev.filter(tId => tId !== id)
         : [...prev, id]
     );
   };
 
   const handleSelectAll = () => {
-    setSelectedExpenses(
-      selectedExpenses.length === expenses.length
+    setSelectedTransactions(
+      selectedTransactions.length === transactions.length
         ? []
-        : expenses.map(expense => expense.id)
+        : transactions.map(t => t.id)
     );
   };
 
   const exportToPDF = () => {
     const doc = new jsPDF();
     
-    doc.text('Expense Report', 20, 20);
+    doc.text('Transaction Report', 20, 20);
     
-    const selectedExpenseData = expenses
+    const selectedTransactionData = transactions
       .filter(
-        (expense) =>
-          selectedExpenses.length === 0 || selectedExpenses.includes(expense.id)
+        (transaction) =>
+          selectedTransactions.length === 0 || selectedTransactions.includes(transaction.id)
       )
-      .map((expense) => [
-        format(new Date(expense.date), "MMM d, yyyy"),
-        expense.description,
-        expense.categories?.name || "Uncategorized",
-        expense.categories?.type === "income"
-          ? `+$${expense.amount.toFixed(2)}`
-          : `-$${expense.amount.toFixed(2)}`,
+      .map((transaction) => [
+        format(new Date(transaction.date), "MMM d, yyyy"),
+        transaction.description,
+        transaction.categories?.name || "Uncategorized",
+        transaction.categories?.type === "income"
+          ? `+$${transaction.amount.toFixed(2)}`
+          : `-$${transaction.amount.toFixed(2)}`,
       ]);
 
     autoTable(doc, {
       head: [['Date', 'Description', 'Category', 'Amount']],
-      body: selectedExpenseData,
+      body: selectedTransactionData,
       startY: 30,
       styles: { fontSize: 10 },
       headStyles: { fillColor: [3, 59, 74] },
     });
 
-    const totalAmount = expenses
-      .filter(expense => selectedExpenses.length === 0 || selectedExpenses.includes(expense.id))
-      .reduce((sum, expense) => sum + Number(expense.amount), 0);
+    const totalAmount = transactions
+      .filter(transaction => selectedTransactions.length === 0 || selectedTransactions.includes(transaction.id))
+      .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
 
     const finalY = (doc as any).lastAutoTable.finalY || 30;
     doc.text(`Total: $${totalAmount.toFixed(2)}`, 20, finalY + 10);
 
-    doc.save('expense-report.pdf');
+    doc.save('transaction-report.pdf');
   };
 
   const exportToExcel = () => {
-    const selectedExpenseData = expenses
+    const selectedTransactionData = transactions
       .filter(
-        (expense) =>
-          selectedExpenses.length === 0 || selectedExpenses.includes(expense.id)
+        (transaction) =>
+          selectedTransactions.length === 0 || selectedTransactions.includes(transaction.id)
       )
-      .map((expense) => ({
-        Date: format(new Date(expense.date), "MMM d, yyyy"),
-        Description: expense.description,
-        Category: expense.categories?.name || "Uncategorized",
-        Type: expense.categories?.type || "expense",
+      .map((transaction) => ({
+        Date: format(new Date(transaction.date), "MMM d, yyyy"),
+        Description: transaction.description,
+        Category: transaction.categories?.name || "Uncategorized",
+        Type: transaction.categories?.type || "expense",
         Amount:
-          expense.categories?.type === "income"
-            ? `+$${expense.amount.toFixed(2)}`
-            : `-$${expense.amount.toFixed(2)}`,
+          transaction.categories?.type === "income"
+            ? `+$${transaction.amount.toFixed(2)}`
+            : `-$${transaction.amount.toFixed(2)}`,
       }));
 
-    const ws = XLSX.utils.json_to_sheet(selectedExpenseData);
+    const ws = XLSX.utils.json_to_sheet(selectedTransactionData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Expenses');
-    XLSX.writeFile(wb, 'expense-report.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+    XLSX.writeFile(wb, 'transaction-report.xlsx');
   };
 
-  const handleExpenseAdded = () => {
-    // Dispatch the expenseUpdated event to refresh the dashboard data
-    window.dispatchEvent(new CustomEvent('expenseUpdated'));
-    // Close the form and refresh expenses
-    setShowAddExpense(false);
+  const handleTransactionAdded = () => {
+    // Dispatch the transactionUpdated event to refresh the dashboard data
+    window.dispatchEvent(new CustomEvent('transactionUpdated'));
+    // Close the form and refresh transactions
+    setShowAddTransaction(false);
     setShowAddReceipt(false);
     fetchData();
   };
@@ -251,7 +251,7 @@ export default function Expenses() {
           </button>
           <button
             onClick={() => {
-              setShowAddExpense(true);
+              setShowAddTransaction(true);
               setShowAddReceipt(false);
             }}
             className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-secondary dark:bg-secondary-dark hover:bg-secondary/90 dark:hover:bg-secondary-dark/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary dark:focus:ring-secondary-dark"
@@ -262,7 +262,7 @@ export default function Expenses() {
           <button
             onClick={() => {
               setShowAddReceipt(true);
-              setShowAddExpense(false);
+              setShowAddTransaction(false);
             }}
             className="inline-flex items-center px-4 py-2 border border-input-border dark:border-input-border-dark rounded-md shadow-sm text-sm font-medium text-text-primary dark:text-text-primary-dark bg-card dark:bg-card-dark hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary dark:focus:ring-secondary-dark"
           >
@@ -272,12 +272,12 @@ export default function Expenses() {
         </div>
       </div>
 
-      {showAddExpense && (
+      {showAddTransaction && (
         <div className="mb-8 bg-card dark:bg-card-dark shadow rounded-lg p-6">
           <h2 className="text-xl font-medium text-gray-900 dark:text-gray-100 mb-6">Add New Transaction</h2>
           <ExpenseForm 
             categories={categories}
-            onSuccess={handleExpenseAdded}
+            onSuccess={handleTransactionAdded}
           />
         </div>
       )}
@@ -288,11 +288,11 @@ export default function Expenses() {
           <ReceiptScanner onScanComplete={setScannedData} />
           {scannedData && (
             <div className="mt-8">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Create Expense from Receipt</h3>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-4">Create Transaction from Receipt</h3>
               <ExpenseForm 
                 categories={categories} 
                 initialData={scannedData}
-                onSuccess={handleExpenseAdded}
+                onSuccess={handleTransactionAdded}
               />
             </div>
           )}
@@ -300,40 +300,40 @@ export default function Expenses() {
       )}
 
       <div className="bg-card dark:bg-card-dark shadow-card dark:shadow-card-dark rounded-lg">
-        {expenses.length > 0 ? (
+        {transactions.length > 0 ? (
           <>
             <div className="px-6 py-4 border-b border-input-border dark:border-input-border-dark">
               <div className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={selectedExpenses.length === expenses.length}
+                  checked={selectedTransactions.length === transactions.length}
                   onChange={handleSelectAll}
                   className="h-4 w-4 text-secondary dark:text-secondary-dark focus:ring-secondary dark:focus:ring-secondary-dark border-input-border dark:border-input-border-dark rounded"
                 />
                 <span className="ml-2 text-sm text-text-secondary dark:text-text-secondary-dark">
-                  {selectedExpenses.length === 0
+                  {selectedTransactions.length === 0
                     ? 'Select all'
-                    : `Selected ${selectedExpenses.length} of ${expenses.length}`}
+                    : `Selected ${selectedTransactions.length} of ${transactions.length}`}
                 </span>
               </div>
             </div>
             <ExpenseList 
-              expenses={expenses} 
+              expenses={transactions} 
               onDelete={handleDelete}
-              selectedExpenses={selectedExpenses}
-              onSelectExpense={handleSelectExpense}
+              selectedExpenses={selectedTransactions}
+              onSelectExpense={handleSelectTransaction}
             />
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">No expenses found</p>
+            <p className="text-sm text-text-secondary dark:text-text-secondary-dark">No transactions found</p>
             <div className="mt-4 flex justify-center space-x-4">
               <button
-                onClick={() => setShowAddExpense(true)}
+                onClick={() => setShowAddTransaction(true)}
                 className="inline-flex items-center text-sm font-medium text-secondary dark:text-secondary-dark hover:text-secondary/80 dark:hover:text-secondary-dark/80"
               >
                 <Plus className="h-5 w-5 mr-1" />
-                Add expense manually
+                Add transaction manually
               </button>
               <button
                 onClick={() => setShowAddReceipt(true)}

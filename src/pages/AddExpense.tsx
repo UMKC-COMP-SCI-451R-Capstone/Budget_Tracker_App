@@ -37,9 +37,9 @@ export default function AddExpense() {
     fetchCategories();
   }, []);
 
-  const handleExpenseAdded = () => {
-    // Dispatch the expenseUpdated event to refresh the dashboard data
-    window.dispatchEvent(new CustomEvent('expenseUpdated'));
+  const handleTransactionAdded = () => {
+    // Dispatch the transactionUpdated event to refresh the dashboard data
+    window.dispatchEvent(new CustomEvent('transactionUpdated'));
   };
 
   if (loading) {
@@ -80,7 +80,7 @@ export default function AddExpense() {
           <ExpenseForm 
             categories={categories} 
             initialData={scannedData || undefined}
-            onSuccess={handleExpenseAdded}
+            onSuccess={handleTransactionAdded}
           />
         </div>
       </div>

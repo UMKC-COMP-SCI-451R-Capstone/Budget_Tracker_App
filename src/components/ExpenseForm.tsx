@@ -13,7 +13,7 @@ import { supabase } from '../lib/supabase';
 import type { Account, Category } from '../lib/supabase';
 
 type ExpenseFormProps = {
-  expense?: {
+  transaction?: {
     id: string;
     amount: number;
     category_id: string;
@@ -30,18 +30,18 @@ type ExpenseFormProps = {
   onSuccess?: () => void;
 };
 
-export default function ExpenseForm({ expense, categories, initialData, onSuccess }: ExpenseFormProps) {
+export default function ExpenseForm({ transaction, categories, initialData, onSuccess }: ExpenseFormProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedCategoryType, setSelectedCategoryType] = useState<string>('expense');
   const [formData, setFormData] = useState({
-    amount: expense?.amount || '',
-    category_id: expense?.category_id || '',
-    date: expense?.date ? format(new Date(expense.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
-    description: expense?.description || '',
-    account_id: expense?.account_id || '',
+    amount: transaction?.amount || '',
+    category_id: transaction?.category_id || '',
+    date: transaction?.date ? format(new Date(transaction.date), 'yyyy-MM-dd') : format(new Date(), 'yyyy-MM-dd'),
+    description: transaction?.description || '',
+    account_id: transaction?.account_id || '',
   });
 
   useEffect(() => {
@@ -126,14 +126,14 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
         throw new Error('Please select an account');
       }
 
-      const expenseData = {
+      const transactionData = {
         amount,
         category_id: formData.category_id,
         date: formData.date,
         description: formData.description.trim() || '',
         user_id: user.id,
-        payment_method: 'cash', // Default payment method for scanned receipts
-        tags: [], // Empty tags array for scanned receipts
+        payment_method: 'cash',
+        tags: [],
         account_id: formData.account_id,
       };
 
@@ -149,11 +149,11 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
         throw new Error('Selected account not found');
       }
 
-      // Start a transaction to update both expense and account
-      if (expense) {
+      // Start a transaction to update both transaction and account
+      if (transaction) {
         // For updates, need to handle previous account balance if account changed
-        // Get the current expense data to see if the account or category type changed
-        console.log('Updating expense with ID:', expense.id);
+        // Get the current transaction data to see if the account or category type changed
+        console.log('Updating transaction with ID:', transaction.id);
 
         // First check if we have a valid session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -169,7 +169,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
 
         console.log('Session is valid, proceeding with update');
 
-        const { data: currentExpense, error: expenseDataError } = await supabase
+        const { data: currentTransaction, error: transactionDataError } = await supabase
           .from('expenses')
           .select(`
             *,
@@ -179,48 +179,48 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
               type
             )
           `)
-          .eq('id', expense.id)
+          .eq('id', transaction.id)
           .single();
 
-        if (expenseDataError) throw expenseDataError;
+        if (transactionDataError) throw transactionDataError;
         
-        // Update the expense record
+        // Update the transaction record
         const { error: updateError } = await supabase
           .from('expenses')
           .update({
-            amount: expenseData.amount,
-            category_id: expenseData.category_id,
-            date: expenseData.date,
-            description: expenseData.description,
-            payment_method: expenseData.payment_method,
-            tags: expenseData.tags,
-            account_id: expenseData.account_id
+            amount: transactionData.amount,
+            category_id: transactionData.category_id,
+            date: transactionData.date,
+            description: transactionData.description,
+            payment_method: transactionData.payment_method,
+            tags: transactionData.tags,
+            account_id: transactionData.account_id
           })
-          .eq('id', expense.id);
+          .eq('id', transaction.id);
         
         if (updateError) throw updateError;
 
         // Handle account balance changes
         // If account changed, need to revert old account balance and update new account
-        if (currentExpense.account_id !== formData.account_id) {
+        if (currentTransaction.account_id !== formData.account_id) {
           // Revert changes to old account
-          if (currentExpense.account_id) {
+          if (currentTransaction.account_id) {
             const { data: oldAccount, error: oldAccountError } = await supabase
               .from('accounts')
               .select('*')
-              .eq('id', currentExpense.account_id)
+              .eq('id', currentTransaction.account_id)
               .single();
 
             if (!oldAccountError && oldAccount) {
               // Adjust old account balance (add back expense or remove income)
-              const oldAdjustment = currentExpense.categories.type === 'income' 
-                ? -currentExpense.amount
-                : currentExpense.amount;
+              const oldAdjustment = currentTransaction.categories.type === 'income' 
+                ? -currentTransaction.amount
+                : currentTransaction.amount;
               
               const { error: oldBalanceError } = await supabase
                 .from('accounts')
                 .update({ balance: oldAccount.balance + oldAdjustment })
-                .eq('id', currentExpense.account_id);
+                .eq('id', currentTransaction.account_id);
                 
               if (oldBalanceError) throw oldBalanceError;
             }
@@ -232,7 +232,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
             ? amount  // Add income
             : -amount; // Subtract expense
             
-          // Check if expense would cause negative balance
+          // Check if transaction would cause negative balance
           if (selectedAccount.balance + newAdjustment < 0) {
             throw new Error(`Insufficient balance in ${selectedAccount.name} account`);
           }
@@ -246,17 +246,17 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
         } 
         // If account is the same but amount or category type changed
         else if (
-          currentExpense.amount !== amount || 
-          currentExpense.categories.type !== selectedCategory.type
+          currentTransaction.amount !== amount || 
+          currentTransaction.categories.type !== selectedCategory.type
         ) {
           // Calculate the net change to apply
           let netChange = 0;
           
           // Remove the effect of the old transaction
-          if (currentExpense.categories.type === 'income') {
-            netChange -= currentExpense.amount; // Remove old income
+          if (currentTransaction.categories.type === 'income') {
+            netChange -= currentTransaction.amount; // Remove old income
           } else {
-            netChange += currentExpense.amount; // Add back old expense
+            netChange += currentTransaction.amount; // Add back old expense
           }
           
           // Apply the effect of the new transaction
@@ -280,7 +280,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
           if (balanceUpdateError) throw balanceUpdateError;
         }
       } else {
-        // For new expenses
+        // For new transactions
         // First check if we have a valid session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         if (sessionError) {
@@ -293,20 +293,20 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
           throw new Error('You must be logged in to perform this action');
         }
 
-        console.log('About to insert expense with data:', expenseData);
+        console.log('About to insert transaction with data:', transactionData);
 
-        // Insert the expense record with the session token in the Authorization header
+        // Insert the transaction record with the session token in the Authorization header
         const { error: insertError } = await supabase
           .from('expenses')
           .insert({
-            amount: expenseData.amount,
-            category_id: expenseData.category_id,
-            date: expenseData.date,
-            description: expenseData.description,
-            user_id: expenseData.user_id,
-            payment_method: expenseData.payment_method,
-            tags: expenseData.tags,
-            account_id: expenseData.account_id
+            amount: transactionData.amount,
+            category_id: transactionData.category_id,
+            date: transactionData.date,
+            description: transactionData.description,
+            user_id: transactionData.user_id,
+            payment_method: transactionData.payment_method,
+            tags: transactionData.tags,
+            account_id: transactionData.account_id
           });
         
         if (insertError) throw insertError;
@@ -316,7 +316,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
           ? amount  // Add income
           : -amount; // Subtract expense
           
-        // Check if expense would cause negative balance
+        // Check if transaction would cause negative balance
         if (selectedAccount.balance + adjustment < 0) {
           throw new Error(`Insufficient balance in ${selectedAccount.name} account`);
         }
@@ -336,7 +336,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
         navigate('/expenses');
       }
     } catch (err) {
-      console.error('Error saving expense:', err);
+      console.error('Error saving transaction:', err);
       // Check if we have a Supabase error object with details
       if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
         const supaError = err as { code: string; message: string; details?: string; hint?: string };
@@ -348,7 +348,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
         });
         setError(`Database error: ${supaError.message}${supaError.hint ? ` (Hint: ${supaError.hint})` : ''}`);
       } else {
-        setError(err instanceof Error ? err.message : 'An error occurred while saving the expense');
+        setError(err instanceof Error ? err.message : 'An error occurred while saving the transaction');
       }
     } finally {
       setLoading(false);
@@ -487,7 +487,7 @@ export default function ExpenseForm({ expense, categories, initialData, onSucces
               Saving...
             </>
           ) : (
-            expense ? 'Update Transaction' : 'Add Transaction'
+            transaction ? 'Update Transaction' : 'Add Transaction'
           )}
         </button>
       </div>
