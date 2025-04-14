@@ -99,7 +99,7 @@ export default function Layout() {
         </div>
 
         {/* Mobile bottom navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-primary dark:bg-primary-dark border-t border-white/10 md:hidden">
+        <div className="fixed bottom-0 left-0 right-0 bg-primary dark:bg-primary-dark border-t border-white/10 md:hidden z-50">
           <nav className="flex justify-around">
             {navigation.map((item) => {
               const isActive = location.pathname === item.href;
@@ -142,7 +142,7 @@ export default function Layout() {
               </div>
             </div>
           </div>
-          <main className="flex-1 pb-16 md:pb-0">
+          <main className="flex-1 pb-24 md:pb-0">
             <Outlet />
           </main>
         </div>

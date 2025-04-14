@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { 
-  CreditCard, 
   Calendar, 
   FileText, 
   DollarSign,
-  Loader2,
-  Wallet
+  Loader2
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Account, Category } from '../lib/supabase';
@@ -369,14 +367,11 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
           Category
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <CreditCard className="h-5 w-5 text-gray-400" />
-          </div>
           <select
             id="category"
             value={formData.category_id}
             onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
-            className="block w-full pl-10 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+            className="block w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
             required
           >
             <option value="">Select a category</option>
@@ -394,14 +389,11 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
           Account
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Wallet className="h-5 w-5 text-gray-400" />
-          </div>
           <select
             id="account"
             value={formData.account_id}
             onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
-            className="block w-full pl-10 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+            className="block w-full px-3 py-2 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
             required
           >
             <option value="">Select an account</option>
@@ -425,7 +417,7 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <DollarSign className="h-5 w-5 text-gray-400" />
+            <DollarSign className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="number"
@@ -433,7 +425,7 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
             id="amount"
             value={formData.amount}
             onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-            className="block w-full pl-10 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+            className="block w-full pl-14 pr-3 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
             required
           />
         </div>
@@ -445,14 +437,14 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Calendar className="h-5 w-5 text-gray-400" />
+            <Calendar className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <input
             type="date"
             id="date"
             value={formData.date}
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            className="block w-full pl-10 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+            className="block w-full pl-14 pr-3 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
             required
           />
         </div>
@@ -464,14 +456,14 @@ export default function ExpenseForm({ transaction, categories, initialData, onSu
         </label>
         <div className="mt-1 relative rounded-md shadow-sm">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <FileText className="h-5 w-5 text-gray-400" />
+            <FileText className="h-5 w-5 text-gray-400 dark:text-gray-500" />
           </div>
           <textarea
             id="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             rows={3}
-            className="block w-full pl-10 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
+            className="block w-full pl-14 pr-3 rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm dark:bg-gray-700 dark:text-gray-100"
           />
         </div>
       </div>

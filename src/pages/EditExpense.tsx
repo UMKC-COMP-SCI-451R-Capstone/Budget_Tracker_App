@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import ExpenseForm from '../components/ExpenseForm';
-import type { Expense, Category, Account } from '../lib/supabase';
+import type { Expense, Category } from '../lib/supabase';
 
 export default function EditExpense() {
   const { id } = useParams<{ id: string }>();
@@ -87,8 +87,8 @@ export default function EditExpense() {
   return (
     <div className="p-6">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-8">Edit Transaction</h1>
-        <div className="bg-white shadow rounded-lg p-6">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-8">Edit Transaction</h1>
+        <div className="bg-card dark:bg-card-dark shadow rounded-lg p-6">
           <ExpenseForm 
             transaction={transaction} 
             categories={categories} 

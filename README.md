@@ -5,6 +5,7 @@ A comprehensive expense tracking application built with React, TypeScript, and S
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
+
 - [Node.js](https://nodejs.org/) (v18 or higher)
 - [VS Code](https://code.visualstudio.com/)
 - [Git](https://git-scm.com/) (optional)
@@ -12,20 +13,24 @@ Before you begin, ensure you have the following installed:
 ## Local Setup Instructions
 
 1. **Extract the Files**
+
    - Extract all files to a directory on your computer
 
 2. **Open in VS Code**
+
    - Open VS Code
    - Go to File > Open Folder
    - Select the extracted project directory
 
 3. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 4. **Set Up Environment Variables**
-   - Rename `.env.example` to `.env`
+
+   - Rename `.example` to `.env`
    - Update the Supabase credentials in `.env`:
      ```
      VITE_SUPABASE_URL=your_supabase_project_url
@@ -81,10 +86,12 @@ expense-tracker/
 ### Common Issues
 
 1. **Node.js Version**
+
    - Ensure you have Node.js v18 or higher installed
    - Check version: `node --version`
 
 2. **Dependencies Installation**
+
    - If you encounter errors during installation:
      ```bash
      npm cache clean --force
@@ -93,6 +100,7 @@ expense-tracker/
      ```
 
 3. **Environment Variables**
+
    - Make sure `.env` file exists and contains correct Supabase credentials
    - Restart development server after changing environment variables
 
