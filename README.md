@@ -1,6 +1,7 @@
 # Expense Tracker
 
-A comprehensive expense tracking application built with React, TypeScript, and Supabase.
+## UMKC Capstone Project
+expense tracking application built with React, TypeScript, and Supabase.
 
 ## Prerequisites
 
