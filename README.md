@@ -1,6 +1,12 @@
 # Expense Tracker
 
-A comprehensive expense tracking application built with React, TypeScript, and Supabase.
+## UMKC Capstone project
+expense tracking application built with React, TypeScript, and Supabase.
+## Team Members 
+1- Azim Khamis
+2- Zhen Xiao
+3- Tony Nguyen
+4- Alaa Abdulameer
 
 ## Prerequisites
 
