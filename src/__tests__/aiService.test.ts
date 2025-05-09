@@ -14,8 +14,6 @@ vi.mock('openai', () => {
     },
   }));
 
-  // Return the mocked class constructor as the default export
-  // and the create function for potential spying/access
   return {
     default: MockOpenAI,
     mockCompletionCreate, // Export the mock function itself for inspection

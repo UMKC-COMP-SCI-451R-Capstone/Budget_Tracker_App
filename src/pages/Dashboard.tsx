@@ -78,8 +78,6 @@ export default function Dashboard() {
           )
         `)
         .eq('user_id', user.id)
-        .gte('date', startDate)
-        .lte('date', endDate)
         .order('date', { ascending: false });
 
       if (transactionsError) throw transactionsError;
